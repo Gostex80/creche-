@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planning crèche</title>
+<!-- Script pour générer directement un fichier PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; }
@@ -240,7 +242,12 @@ function deleteCurrentMonth() {
   loadMonth(monthIndex.includes(thisMonth) ? thisMonth : (monthIndex[monthIndex.length-1] || thisMonth));
 }
 
-function buildPrintHTML() {
+function buildPrintElement() {
+  const container = document.createElement("div");
+  container.style.padding = "20px";
+  container.style.fontFamily = "Arial, sans-serif";
+  container.style.color = "#111";
+
   const rows = [];
   for (let day=1; day<=daysInMonth(currentMonth); day++) {
     const d = monthData.days[day] || {};
@@ -248,48 +255,61 @@ function buildPrintHTML() {
     const pickup = (d.pickupTime || "").trim();
     const noteRaw = (d.note || "").trim();
 
-    // Filtre : on n'affiche la ligne que si au moins un des 3 champs est renseigné
     if (dropoff || pickup || noteRaw) {
       const date = new Date(currentMonth + "-" + String(day).padStart(2,"0") + "T00:00:00");
       const dayName = date.toLocaleDateString("fr-FR", { weekday:"long" });
       const dateStr = date.toLocaleDateString("fr-FR", { day:"numeric", month:"long" });
       const noteEscaped = noteRaw.replace(/</g, "&lt;");
-      rows.push(`<tr><td><strong>${dayName}</strong><br><span style="font-size:11px;color:#666">${dateStr}</span></td><td>${dropoff || "—"}</td><td>${pickup || "—"}</td><td>${noteEscaped || "—"}</td></tr>`);
+      rows.push(`<tr>
+        <td style="padding:6px; border-bottom:1px solid #ccc; width:28%;"><strong>${dayName}</strong><br><span style="font-size:11px;color:#666">${dateStr}</span></td>
+        <td style="padding:6px; border-bottom:1px solid #ccc; width:17%;">${dropoff || "—"}</td>
+        <td style="padding:6px; border-bottom:1px solid #ccc; width:17%;">${pickup || "—"}</td>
+        <td style="padding:6px; border-bottom:1px solid #ccc; width:38%; word-break:break-word;">${noteEscaped || "—"}</td>
+      </tr>`);
     }
   }
 
-  const contentHTML = rows.length > 0
-    ? `<table><thead><tr><th>Jour</th><th>Dépose</th><th>Récupère</th><th>Note</th></tr></thead><tbody>${rows.join("")}</tbody></table>`
+  const tableHTML = rows.length > 0
+    ? `<table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px;">
+        <thead>
+          <tr style="border-bottom:2px solid #333; font-size:11px;">
+            <th style="padding:6px;">Jour</th>
+            <th style="padding:6px;">Dépose</th>
+            <th style="padding:6px;">Récupère</th>
+            <th style="padding:6px;">Note</th>
+          </tr>
+        </thead>
+        <tbody>${rows.join("")}</tbody>
+       </table>`
     : `<p style="font-size:12px; font-style:italic; color:#666;">Aucun jour renseigné pour ce mois.</p>`;
 
-  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Planning crèche - ${monthLabel(currentMonth)}</title>
-  <style>
-  @page{size:A4 portrait;margin:10mm}
-  *{box-sizing:border-box}
-  body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:0;margin:0}
-  h1{font-size:18px;margin:0 0 2px}
-  p{font-size:10px;color:#444;margin:0 0 8px}
-  table{width:100%;border-collapse:collapse;table-layout:fixed}
-  th{text-align:left;font-size:8.5px;padding:4px 5px;border-bottom:1.5px solid #333}
-  td{font-size:8.5px;padding:3.5px 5px;border-bottom:1px solid #ccc;vertical-align:top;height:7.7mm}
-  th:nth-child(1),td:nth-child(1){width:28%}
-  th:nth-child(2),td:nth-child(2){width:17%}
-  th:nth-child(3),td:nth-child(3){width:17%}
-  th:nth-child(4),td:nth-child(4){width:38%;word-break:break-word}
-  </style></head><body>
-  <h1>Planning crèche</h1><p>${monthLabel(currentMonth)}</p>
-  ${contentHTML}
-  <script>window.onload=function(){setTimeout(function(){window.print()},150)};<\/script></body></html>`;
+  container.innerHTML = `
+    <h1 style="font-size:20px; margin:0 0 4px 0;">Planning crèche</h1>
+    <p style="font-size:12px; color:#555; margin:0 0 16px 0;">${monthLabel(currentMonth)}</p>
+    ${tableHTML}
+  `;
+
+  return container;
 }
 
 function exportPDF() {
   try {
-    const blob = new Blob([buildPrintHTML()], {type:"text/html"});
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank");
-    if (!win) showError("Autorise les pop-ups pour ce site puis réessaie.");
-    else hideError();
-  } catch { showError("La génération du PDF a échoué."); }
+    const element = buildPrintElement();
+    const filename = `Planning_Creche_${monthLabel(currentMonth).replace(/\s+/g, '_')}.pdf`;
+    
+    const opt = {
+      margin:       10,
+      filename:     filename,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+    hideError();
+  } catch (err) { 
+    showError("La génération du PDF a échoué."); 
+  }
 }
 
 function renderMonthPills() {
