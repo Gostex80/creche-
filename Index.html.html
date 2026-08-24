@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning crèche</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Work+Sans:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(46,58,50,0.07) 1px, transparent 0) 0 0/16px 16px, #EDE7DA;
+  font-family: 'Work Sans', sans-serif;
+  color: #2E3A32;
+  padding-bottom: 40px;
+}
+button, input, textarea { font-family: 'Work Sans', sans-serif; }
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid #8FA88C;
+  outline-offset: 2px;
+}
+.washi-top {
+  height: 10px;
+  width: 100%;
+  background: repeating-linear-gradient(135deg, #8FA88C 0 10px, #7C9A79 10px 20px);
+  opacity: 0.8;
+}
+header, main { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+header { padding-top: 28px; padding-bottom: 8px; }
+.logo-wrap { display: flex; align-items: center; gap: 12px; }
+.logo-badge {
+  width: 42px; height: 42px; border-radius: 12px; background: #7C9A79;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 2px 0 rgba(46,58,50,0.15); font-size: 20px;
+}
+h1 {
+  font-family: 'Caveat', cursive; font-weight: 700; font-size: 34px;
+  line-height: 1; margin: 0; color: #2E3A32;
+}
+.subtitle { margin: 2px 0 0; font-size: 13px; color: #6B7A6E; }
+.week-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px; }
+.week-label-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 220px; }
+.week-label { font-family: 'Caveat', cursive; font-weight: 700; font-size: 24px; text-align: center; }
+.new-badge { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #B15A6B; font-weight: 700; }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(46,58,50,0.25);
+  background: #FFFDF8; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #2E3A32; font-size: 16px;
+}
+.actions-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.primary-btn {
+  display: inline-flex; align-items: center; gap: 6px; background: #2E3A32; color: #FFFDF8;
+  border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.pdf-btn {
+  display: inline-flex; align-items: center; gap: 6px; background: transparent; color: #2E3A32;
+  border: 1.5px solid #2E3A32; border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.danger-ghost-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(177,90,107,0.4);
+  background: transparent; color: #B15A6B; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.save-status { font-size: 12px; min-width: 90px; text-align: center; }
+.saved-tag { display: inline-flex; align-items: center; gap: 4px; color: #7C9A79; font-weight: 600; }
+.week-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+.week-pill {
+  font-size: 12px; padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(46,58,50,0.2);
+  background: transparent; color: #6B7A6E; cursor: pointer;
+}
+.week-pill.active { background: #2E3A32; color: #FFFDF8; border-color: #2E3A32; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 26px; margin-top: 30px; }
+.month-separator { grid-column: 1 / -1; font-family: 'Caveat', cursive; font-size: 22px; margin-top: 8px; }
+.card {
+  background: #FFFDF8; border-radius: 4px; padding: 18px 16px 14px;
+  box-shadow: 0 6px 14px rgba(46,58,50,0.12); position: relative; min-height: 190px;
+}
+.pin {
+  position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+  width: 14px; height: 14px; border-radius: 50%; background: #B15A6B; box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+}
+.card-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1px dashed rgba(46,58,50,0.2); padding-bottom: 8px; margin-bottom: 12px;
+}
+.card-day { font-family: 'Caveat', cursive; font-weight: 700; font-size: 22px; }
+.card-date { font-size: 11px; color: #9A8F7A; font-weight: 600; }
+.person-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.person-label { font-size: 11px; color: #6B7A6E; width: 58px; flex-shrink: 0; font-weight: 600; }
+.time-input {
+  margin-left: auto; font-size: 12px; border: 1px solid rgba(46,58,50,0.2); border-radius: 6px;
+  padding: 3px 5px; width: 84px; color: #2E3A32; background: #fff;
+}
+.note {
+  width: 100%; margin-top: 4px; font-size: 12px; border: 1px solid rgba(46,58,50,0.15);
+  border-radius: 6px; padding: 6px 8px; resize: none; color: #2E3A32; background: rgba(46,58,50,0.02);
+}
+.error-text { color: #B15A6B; text-align: center; margin-top: 16px; font-size: 13px; }
+footer { text-align: center; font-size: 12px; color: #9A8F7A; margin-top: 40px; }
+@media (max-width: 600px) { header, main { padding-left: 12px; padding-right: 12px; } .grid { grid-template-columns: 1fr; gap: 20px; } .week-label-wrap { min-width: 190px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="washi-top"></div>
+<header>
+  <div class="logo-wrap">
+    <div class="logo-badge">🍼</div>
+    <div>
+      <h1>Planning crèche</h1>
+      <p class="subtitle">mon planning de la semaine</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="week-nav">
+    <button class="icon-btn" id="prevMonth" aria-label="Mois précédent">‹</button>
+    <div class="week-label-wrap">
+      <span class="week-label" id="monthLabel"></span>
+      <span class="new-badge" id="newBadge" style="display:none;">nouveau</span>
+    </div>
+    <button class="icon-btn" id="nextMonth" aria-label="Mois suivant">›</button>
+  </div>
+
+  <div class="actions-row">
+    <button class="primary-btn" id="createMonthBtn">+ Nouveau mois</button>
+    <button class="pdf-btn" id="exportPdfBtn">⭳ PDF</button>
+    <div class="save-status"><span class="saved-tag" id="savedTag" style="visibility:hidden;">✓ enregistré</span></div>
+    <button class="danger-ghost-btn" id="deleteMonthBtn" aria-label="Supprimer ce mois" style="display:none;">🗑</button>
+  </div>
+
+  <div class="week-pills" id="monthPills"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <p class="error-text" id="errorText" style="display:none;"></p>
+</main>
+
+<footer>Fait maison, pour ne rien oublier 🍼</footer>
+
+<script>
+const MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const STORAGE_INDEX_KEY = "creche-months-index";
+const STORAGE_MONTH_PREFIX = "creche-month:";
+
+function toISODate(d) {
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,"0"), day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function monthKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function firstOfMonth(key) { return new Date(key + "-01T00:00:00"); }
+function monthLabel(key) {
+  const d = firstOfMonth(key);
+  return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+function nextMonth(key, n) {
+  const d = firstOfMonth(key);
+  d.setMonth(d.getMonth()+n);
+  return monthKey(d);
+}
+function daysInMonth(key) {
+  const d = firstOfMonth(key);
+  return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+}
+function emptyMonth(key) {
+  const days = {};
+  for (let i=1; i<=daysInMonth(key); i++) days[i] = { dropoffTime:"", pickupTime:"", note:"" };
+  return { month:key, days };
+}
+function loadIndex() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_INDEX_KEY) || "[]"); } catch { return []; }
+}
+function saveIndex(idx) { localStorage.setItem(STORAGE_INDEX_KEY, JSON.stringify(idx)); }
+function loadMonthData(key) {
+  try {
+    const raw = localStorage.getItem(STORAGE_MONTH_PREFIX + key);
+    return raw ? JSON.parse(raw) : emptyMonth(key);
+  } catch { return emptyMonth(key); }
+}
+function saveMonthData(key, data) { localStorage.setItem(STORAGE_MONTH_PREFIX + key, JSON.stringify(data)); }
+
+let monthIndex = loadIndex();
+let currentMonth = null;
+let monthData = null;
+let saveTimer = null;
+
+function ensureInIndex(key) {
+  if (!monthIndex.includes(key)) {
+    monthIndex = [...monthIndex, key].sort();
+    saveIndex(monthIndex);
+  }
+}
+function showSaved() {
+  const tag = document.getElementById("savedTag");
+  tag.style.visibility = "visible";
+  clearTimeout(showSaved._t);
+  showSaved._t = setTimeout(() => tag.style.visibility = "hidden", 1200);
+}
+function showError(msg) {
+  const el = document.getElementById("errorText");
+  el.textContent = msg; el.style.display = "block";
+}
+function hideError() { document.getElementById("errorText").style.display = "none"; }
+
+function loadMonth(key) {
+  currentMonth = key;
+  monthData = loadMonthData(key);
+  render();
+}
+function updateDay(day, patch) {
+  monthData.days[day] = { ...(monthData.days[day] || {}), ...patch };
+  ensureInIndex(currentMonth);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveMonthData(currentMonth, monthData);
+    showSaved();
+    renderMonthPills();
+  }, 350);
+}
+function goToMonth(offset) { loadMonth(nextMonth(currentMonth, offset)); }
+
+function createNextMonth() {
+  const base = monthIndex.length ? monthIndex[monthIndex.length-1] : monthKey(new Date());
+  const next = nextMonth(base, 1);
+  ensureInIndex(next);
+  saveMonthData(next, emptyMonth(next));
+  loadMonth(next);
+}
+function deleteCurrentMonth() {
+  if (!currentMonth) return;
+  if (!confirm(`Supprimer le planning de ${monthLabel(currentMonth)} ?`)) return;
+  localStorage.removeItem(STORAGE_MONTH_PREFIX + currentMonth);
+  monthIndex = monthIndex.filter(m => m !== currentMonth);
+  saveIndex(monthIndex);
+  const thisMonth = monthKey(new Date());
+  loadMonth(monthIndex.includes(thisMonth) ? thisMonth : (monthIndex[monthIndex.length-1] || thisMonth));
+}
+
+function buildPrintHTML() {
+  const rows = [];
+  for (let day=1; day<=daysInMonth(currentMonth); day++) {
+    const d = monthData.days[day] || {};
+    const dropoff = (d.dropoffTime || "").trim();
+    const pickup = (d.pickupTime || "").trim();
+    const noteRaw = (d.note || "").trim();
+
+    // Filtre : on n'affiche la ligne que si au moins un des 3 champs est renseigné
+    if (dropoff || pickup || noteRaw) {
+      const date = new Date(currentMonth + "-" + String(day).padStart(2,"0") + "T00:00:00");
+      const dayName = date.toLocaleDateString("fr-FR", { weekday:"long" });
+      const dateStr = date.toLocaleDateString("fr-FR", { day:"numeric", month:"long" });
+      const noteEscaped = noteRaw.replace(/</g, "&lt;");
+      rows.push(`<tr><td><strong>${dayName}</strong><br><span style="font-size:11px;color:#666">${dateStr}</span></td><td>${dropoff || "—"}</td><td>${pickup || "—"}</td><td>${noteEscaped || "—"}</td></tr>`);
+    }
+  }
+
+  const contentHTML = rows.length > 0
+    ? `<table><thead><tr><th>Jour</th><th>Dépose</th><th>Récupère</th><th>Note</th></tr></thead><tbody>${rows.join("")}</tbody></table>`
+    : `<p style="font-size:12px; font-style:italic; color:#666;">Aucun jour renseigné pour ce mois.</p>`;
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Planning crèche - ${monthLabel(currentMonth)}</title>
+  <style>
+  @page{size:A4 portrait;margin:10mm}
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:0;margin:0}
+  h1{font-size:18px;margin:0 0 2px}
+  p{font-size:10px;color:#444;margin:0 0 8px}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th{text-align:left;font-size:8.5px;padding:4px 5px;border-bottom:1.5px solid #333}
+  td{font-size:8.5px;padding:3.5px 5px;border-bottom:1px solid #ccc;vertical-align:top;height:7.7mm}
+  th:nth-child(1),td:nth-child(1){width:28%}
+  th:nth-child(2),td:nth-child(2){width:17%}
+  th:nth-child(3),td:nth-child(3){width:17%}
+  th:nth-child(4),td:nth-child(4){width:38%;word-break:break-word}
+  </style></head><body>
+  <h1>Planning crèche</h1><p>${monthLabel(currentMonth)}</p>
+  ${contentHTML}
+  <script>window.onload=function(){setTimeout(function(){window.print()},150)};<\/script></body></html>`;
+}
+
+function exportPDF() {
+  try {
+    const blob = new Blob([buildPrintHTML()], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, "_blank");
+    if (!win) showError("Autorise les pop-ups pour ce site puis réessaie.");
+    else hideError();
+  } catch { showError("La génération du PDF a échoué."); }
+}
+
+function renderMonthPills() {
+  const wrap = document.getElementById("monthPills");
+  wrap.innerHTML = "";
+  monthIndex.forEach(m => {
+    const btn = document.createElement("button");
+    btn.className = "week-pill" + (m === currentMonth ? " active" : "");
+    btn.textContent = monthLabel(m);
+    btn.onclick = () => loadMonth(m);
+    wrap.appendChild(btn);
+  });
+}
+function dayCardHTML(day, data) {
+  const date = new Date(currentMonth + "-" + String(day).padStart(2,"0") + "T00:00:00");
+  const dayName = date.toLocaleDateString("fr-FR", {weekday:"long"});
+  const dateLabel = date.toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+  const rotations = ["-1.1deg","0.8deg","-0.6deg","1deg","-0.9deg"];
+  const rotate = rotations[day % rotations.length];
+  return `<div class="card" style="transform:rotate(${rotate})">
+    <div class="pin"></div><div class="card-head"><span class="card-day">${dayName}</span><span class="card-date">${dateLabel}</span></div>
+    <div class="person-row"><span class="person-label">Dépose</span><input type="time" class="time-input" data-day="${day}" data-field="dropoffTime" value="${data.dropoffTime || ""}"></div>
+    <div class="person-row"><span class="person-label">Récupère</span><input type="time" class="time-input" data-day="${day}" data-field="pickupTime" value="${data.pickupTime || ""}"></div>
+    <textarea class="note" rows="2" placeholder="Note (sieste, doudou, médicament…)" data-day="${day}" data-field="note">${data.note || ""}</textarea>
+  </div>`;
+}
+function render() {
+  document.getElementById("monthLabel").textContent = monthLabel(currentMonth);
+  document.getElementById("newBadge").style.display = monthIndex.includes(currentMonth) ? "none" : "inline";
+  document.getElementById("deleteMonthBtn").style.display = monthIndex.includes(currentMonth) ? "flex" : "none";
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  for (let day=1; day<=daysInMonth(currentMonth); day++) {
+    grid.insertAdjacentHTML("beforeend", dayCardHTML(day, monthData.days[day] || {}));
+  }
+  grid.querySelectorAll("input,textarea").forEach(el => {
+    el.addEventListener("input", e => updateDay(parseInt(e.target.dataset.day,10), {[e.target.dataset.field]:e.target.value}));
+  });
+  renderMonthPills();
+}
+
+document.getElementById("prevMonth").onclick = () => goToMonth(-1);
+document.getElementById("nextMonth").onclick = () => goToMonth(1);
+document.getElementById("createMonthBtn").onclick = createNextMonth;
+document.getElementById("deleteMonthBtn").onclick = deleteCurrentMonth;
+document.getElementById("exportPdfBtn").onclick = exportPDF;
+
+const thisMonth = monthKey(new Date());
+const startTarget = monthIndex.includes(thisMonth) ? thisMonth : (monthIndex[monthIndex.length-1] || thisMonth);
+loadMonth(startTarget);
+</script>
+</body>
+</html>
